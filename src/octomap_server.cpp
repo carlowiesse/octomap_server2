@@ -167,8 +167,6 @@ namespace octomap_server {
     }
 
     void OctomapServer::onInit() {
-        this->subscribe();
-
         rclcpp::QoS qos(rclcpp::KeepLast(3));
         this->m_markerPub = this->create_publisher<
             visualization_msgs::msg::MarkerArray>(
@@ -185,6 +183,13 @@ namespace octomap_server {
         this->m_fmarkerPub = this->create_publisher<
             visualization_msgs::msg::MarkerArray>(
                 "free_cells_vis_array", qos);
+
+        const auto filename = this->declare_parameter("octomap_path", "");
+        RCLCPP_INFO(this->get_logger(), "Set Octomap path : %s", filename.c_str());
+        if (!openFile(filename)) {
+            RCLCPP_WARN(get_logger(), "Could not open file %s", filename.c_str());
+            this->subscribe();
+        }
     }
 
     void OctomapServer::subscribe() {
@@ -549,11 +554,37 @@ namespace octomap_server {
 
         bool publishFreeMarkerArray = m_publishFreeSpace &&
             m_fmarkerPub->get_subscription_count()  > 0;
-        bool publishMarkerArray = m_markerPub->get_subscription_count() > 0;
+        //bool publishMarkerArray = m_markerPub->get_subscription_count() > 0;
+        bool publishMarkerArray = true;
         bool publishPointCloud = m_pointCloudPub->get_subscription_count() > 0;
         bool publishBinaryMap = m_binaryMapPub->get_subscription_count() > 0;
         bool publishFullMap = m_fullMapPub->get_subscription_count() > 0;
-        m_publish2DMap = m_mapPub->get_subscription_count() > 0;
+        //m_publish2DMap = m_mapPub->get_subscription_count() > 0;
+        m_publish2DMap = true;
+
+        if (!publishFreeMarkerArray) {
+            RCLCPP_WARN(this->get_logger(),"Free Marker Array not being published");
+        }
+
+        if (!publishMarkerArray) {
+            RCLCPP_WARN(this->get_logger(),"Occupied Marker Array not being published");
+        }
+
+        if (!publishPointCloud) {
+            RCLCPP_WARN(this->get_logger(),"Point Cloud not being published");
+        }
+
+        if (!publishBinaryMap) {
+            RCLCPP_WARN(this->get_logger(),"Binary Octomap not being published");
+        }
+
+        if (!publishFullMap) {
+            RCLCPP_WARN(this->get_logger(),"Full Octomap not being published");
+        }
+
+        if (!m_publish2DMap) {
+            RCLCPP_WARN(this->get_logger(),"Projected 2D Map not being published");
+        }
 
         // init markers for free space:
         visualization_msgs::msg::MarkerArray freeNodesVis;

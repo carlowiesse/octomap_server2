@@ -33,6 +33,7 @@ find_package(octomap_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 link_directories(${PCL_LIBRARY_DIRS})
 include_directories(${PCL_INCLUDE_DIRS})
@@ -46,6 +47,7 @@ add_library(octomap_server2 SHARED
 
 ament_target_dependencies(octomap_server2
   rclcpp
+  rclcpp_components
   PCL
   pcl_conversions
   sensor_msgs
@@ -59,6 +61,7 @@ ament_target_dependencies(octomap_server2
   message_filters
   tf2_ros
   tf2_msgs
+  tf2_geometry_msgs
   tf2
   )
 
